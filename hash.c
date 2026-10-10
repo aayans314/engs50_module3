@@ -88,10 +88,10 @@ hashtable_t *hopen(uint32_t hsize){
 
   hp->size = hsize;
 
-  // for that one cased when making a queue fails
-  for (int i = 0; i < hsize; i++){
+  
+  for (i = 0; i < hsize; i++){
     hp->table[i] = qopen();
-
+// for that one cased when making a queue fails, damage control
     if(hp->table[i] == NULL){
       while(i>0){
         i--;
@@ -109,4 +109,19 @@ hashtable_t *hopen(uint32_t hsize){
 // delete the hash table
 void hclose(hashtable_t *htp){
 
+  hashtable_t_priv *hp_priv;
+  uint32_t i;
+
+  if(htp == NULL) return ;
+
+  hp_priv = (hashtable_t_priv*) htp;
+
+  for(i = 0; i < hp_priv->size; i++){
+    qclose(hp_priv->table[i]);
+  }
+
+  free(hp_priv->table);
+  free(hp_priv);
+
 }
+
