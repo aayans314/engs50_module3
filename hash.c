@@ -166,7 +166,20 @@ void happly(hashtable_t *htp, void (*fn)(void* ep)){
 void *hsearch(hashtable_t *htp, 
 	      bool (*searchfn)(void* elementp, const void* searchkeyp), 
 	      const char *key, 
-	      int32_t keylen);
+	      int32_t keylen){
+
+  hashtable_t_priv *htp_priv;
+	uint32_t index;
+  
+  if (htp == NULL || searchfn == NULL || key == NULL || keylen <= 0){
+    return NULL;
+  }
+
+  htp_priv = (hashtable_t_priv*)htp;
+  index = SuperFastHash(key, keylen, htp_priv->size);
+
+  return qsearch(htp_priv->table[index], searchfn, key);
+}
 
 /* hremove -- removes and returns an entry under a designated key
  * using a designated search fn -- returns a pointer to the entry or
