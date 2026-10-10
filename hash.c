@@ -1,8 +1,14 @@
 /* 
  * hash.c -- implements a generic hash table as an indexed set of queues.
- *
+ * Author: Aayan Shah
+ * Created: 10-10-2026
+ * Version: 1.0
+ * 
+ * Description: as described
+ * 
  */
-#include <stdint.h>
+#include "hash.h"
+#include "queue.h"
 
 /* 
  * SuperFastHash() -- produces a number between 0 and the tablesize-1.
@@ -55,3 +61,52 @@ static uint32_t SuperFastHash (const char *data,int len,uint32_t tablesize) {
   return hash % tablesize;
 }
 
+typedef struct hashtable{
+  uint32_t size;
+  queue_t **table;
+}
+
+// Make a hash table i.e. just an array of queues
+hashtable_t *hopen(uint32_t hsize){
+  hashtable_t_priv* hp;
+  uint32_t i;
+
+  if(hsize<=0){
+    return NULL;
+  }
+
+  hp = (hashtable_t_priv*)malloc(sizeof(hashtable_t_priv));
+
+  if(hp == NULL) return NULL;
+  
+  hp->table = (queue_t**)calloc(hsize, sizeof(queue_t**));
+
+  if(hp->table == NULL){
+    free(hp);
+    return NULL;
+  }
+
+  hp->size = hsize;
+
+  // for that one cased when making a queue fails
+  for (int i = 0; i < hsize; i++){
+    hp->table[i] = qopen();
+
+    if(hp->table[i] == NULL){
+      while(i>0){
+        i--;
+        qclose(hp->table[i]);
+      }
+      free(hp->table);
+      free(hp);
+      return NULL;
+    }
+  }
+  return (hashtable_t*)hp;
+}
+
+
+// delete the hash table
+void hclose(hashtable_t *htp){
+
+}
